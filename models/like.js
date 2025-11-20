@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const likeSchema = new mongoose.Schema({
-    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, // utilisateur qui a like
+    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, // utilisateur qui a like, ref: indique a quel collection cet id
     tweet: { type: mongoose.Schema.Types.ObjectId, ref: 'Tweet' } // // le tweet liker
 });
 
