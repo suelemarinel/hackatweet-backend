@@ -65,10 +65,43 @@ router.get('/', (req, res) => {
         .catch(err => res.json({ result: false, error: err.message }));
 });
 
+//Delete
 router.delete('/:id', (req, res) => {
-    Tweet.deleteOne({ _id: req.params.id })
-        .then(() => res.json({ result: true, message: "Tweet deleted" }))
+    
+    Tweet.findById(req.params.id)
+        .then(tweet => {
+            if (!tweet) {
+                res.json({ result: false, error: "Tweet not found" });
+                return;
+            }
+
+            if (tweet.hashtags && tweet.hashtags.length > 0) {
+                tweet.hashtags.forEach(tag => {
+                    Hashtag.findOne({ tag: tag })
+                        .then(existingTag => {
+                            if (existingTag) {
+                                if (existingTag.count > 1) {
+                                    
+                                    Hashtag.updateOne(
+                                        { tag: tag },
+                                        { $inc: { count: -1 } }
+                                    ).then(() => {});
+                                } else {
+                                    
+                                    Hashtag.deleteOne({ tag: tag })
+                                        .then(() => {});
+                                }
+                            }
+                        });
+                });
+            }
+
+            Tweet.deleteOne({ _id: req.params.id })
+                .then(() => res.json({ result: true, message: "Tweet deleted" }))
+                .catch(err => res.json({ result: false, error: err.message }));
+        })
         .catch(err => res.json({ result: false, error: err.message }));
 });
+
 
 module.exports = router;
